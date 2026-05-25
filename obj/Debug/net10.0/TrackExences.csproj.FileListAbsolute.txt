@@ -273,3 +273,5 @@ C:\Users\Youcode\Desktop\csharpcode\TrackExences\bin\Debug\net10.0\ru\Microsoft.
 C:\Users\Youcode\Desktop\csharpcode\TrackExences\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Scripting.resources.dll
 C:\Users\Youcode\Desktop\csharpcode\TrackExences\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Scripting.resources.dll
 C:\Users\Youcode\Desktop\csharpcode\TrackExences\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Scripting.resources.dll
+C:\Users\Youcode\Desktop\csharpcode\TrackExences\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Youcode\Desktop\csharpcode\TrackExences\obj\Debug\net10.0\TrackExences.sourcelink.json

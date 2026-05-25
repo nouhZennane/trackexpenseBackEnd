@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using TrackExences.Dtos.User;
 using TrackExences.Repositories.UserRepo;
+using TrackExences.Services;
 
 namespace TrackExences.Controllers.User;
 
 [Route("api/v1/users")]
 [ApiController]
-public class CreateController(IUserRepo repo, IValidator<CreateUser> validator) : ControllerBase
+public class CreateController(IUserRepo repo, IValidator<CreateUser> validator, 
+    TokenService tokenService) : ControllerBase
 {
     [HttpPost]
     public IActionResult Create(CreateUser cUser)
@@ -23,10 +25,17 @@ public class CreateController(IUserRepo repo, IValidator<CreateUser> validator) 
         }
 
         UserDto userDto = repo.AddUser(cUser);
+        string token = tokenService.GenerateToken(
+            userDto.Id.ToString(),
+            userDto.Email,
+            userDto.Name, "user");
+        
+       // Response.Headers.Append("Authorization", token);
         
         return Ok(new
         {
             message = "User created",
+            token,
             user = userDto
         });
     }

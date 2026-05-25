@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +21,8 @@ builder.Services.AddOpenApi();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-    })
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -33,10 +31,44 @@ builder.Services.AddAuthentication(options =>
             ValidateAudience         = true,
             ValidateLifetime         = true,
             ValidateIssuerSigningKey = true,
+            
             ValidIssuer              = jwtSettings["Issuer"],
             ValidAudience            = jwtSettings["Audience"],
             IssuerSigningKey         = new SymmetricSecurityKey(secretKey),
             ClockSkew                = TimeSpan.Zero // Remove default 5-min tolerance
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                // تخصيص الرسالة
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+
+                var result = JsonSerializer.Serialize(new
+                {
+                    message = "يجب تسجيل الدخول أولاً",
+                    status  = 401
+                });
+
+                return context.Response.WriteAsync(result);
+            },
+
+            OnForbidden = context =>
+            {
+                // لما يكون مسجل بس ما عنده صلاحية
+                context.Response.StatusCode = 403;
+                context.Response.ContentType = "application/json";
+
+                var result = JsonSerializer.Serialize(new
+                {
+                    message = "ليس لديك صلاحية",
+                    status  = 403
+                });
+
+                return context.Response.WriteAsync(result);
+            }
         };
     });
 builder.Services.AddAuthorization();
@@ -49,6 +81,8 @@ builder.Services.AddControllers();
 string stringConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(stringConnection));
+
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddScoped<IValidator<CreateUser>, UserValidator>();
 
@@ -83,6 +117,8 @@ var app = builder.Build();
 // Use CORS — must be before UseAuthorization
 app.UseCors("AllowAngular");
 
+//app.UseMiddleware<JwtMiddleware>();
+
 app.UseMiddleware<ExceptionsMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -90,10 +126,20 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.MapFallbackToController("Handle", "Fallback");
 
 app.UseHttpsRedirection();
+
+
+/*app.UseWhen(
+    context => !context.Request.Path.StartsWithSegments("/api/v1/login"),
+    branch => branch.UseMiddleware<JwtMiddleware>()
+);*/
+
 
 app.Run();

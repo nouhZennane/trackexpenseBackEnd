@@ -6,16 +6,19 @@ using TrackExences.Services;
 
 namespace TrackExences.Repositories.UserRepo;
 
-public class UserRepository(UserMapperService mapper, AppDbContext context): IUserRepo
+public class UserRepository(
+    UserMapperService mapper,
+    AppDbContext context
+) : IUserRepo
 {
     public List<UsersDto> GetUsers(int page, int pageSize)
     {
         // for admin to see all users 
-       List<UsersDto> users = context.Users
-           .Skip((page - 1)* pageSize).Take(pageSize)
-           .Select(user => mapper.CreateUsersDto(user))
-           .ToList();
-       return users;
+        List<UsersDto> users = context.Users
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(user => mapper.CreateUsersDto(user))
+            .ToList();
+        return users;
     }
 
     public UserDto GetUser(int id)
@@ -28,14 +31,14 @@ public class UserRepository(UserMapperService mapper, AppDbContext context): IUs
     public UserDto AddUser(CreateUser cUser)
     {
         User user = mapper.CreateUserToUser(cUser);
-        context.Users.Add(user);
+        var savedUser = context.Users.Add(user);
         context.SaveChanges();
+     
         return mapper.CreateUserDto(user);
     }
 
-   
 
-    public UserDto UpdateUser(UpdateUser uUser,  int id)
+    public UserDto UpdateUser(UpdateUser uUser, int id)
     {
         User user = CheckIfUserExists(id);
         mapper.UpdateUserToUser(uUser, user);
@@ -51,6 +54,7 @@ public class UserRepository(UserMapperService mapper, AppDbContext context): IUs
         context.SaveChanges();
         return mapper.CreateUserDto(user);
     }
+
     private User CheckIfUserExists(int id)
     {
         User? user = context.Users

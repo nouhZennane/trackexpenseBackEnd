@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TrackExences")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8425e220e0a1951221dbdbfed227467a9f28d09")]
 [assembly: System.Reflection.AssemblyProductAttribute("TrackExences")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TrackExences")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

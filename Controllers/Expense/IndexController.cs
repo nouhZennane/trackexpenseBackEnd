@@ -1,13 +1,17 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrackExences.Dtos.Expenses;
+using TrackExences.Middlewares;
 using TrackExences.Repositories.ExpenseRepo;
 
 namespace TrackExences.Controllers.Expense
 {
     [Route("api/v1/expenses")]
     [ApiController]
+    [Authorize]
+   // [JwtFilter]
     public class IndexController(IExpenseRepo repo) : ControllerBase
     {
         [HttpGet]
